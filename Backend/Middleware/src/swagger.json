@@ -1,0 +1,128 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API em Camadas com Swagger e Tratamento de Erros",
+    "description": "Sistema de gestão escolar com arquitetura Controller, Service e Repository, utilizando Middleware Global de Erros.",
+    "version": "1.1.0"
+  },
+  "components": {
+    "schemas": {
+      "ErroPadrao": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "example": "erro_cliente" },
+          "mensagem": { "type": "string", "example": "Mensagem detalhada do erro." }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/alunos": {
+      "get": { "summary": "Lista todos os alunos", "tags": ["Alunos"], "responses": { "200": { "description": "Sucesso" } } },
+      "post": {
+        "summary": "Cadastra um novo aluno",
+        "tags": ["Alunos"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["nome", "email"],
+                "properties": {
+                  "nome": { "type": "string" },
+                  "email": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { 
+          "201": { "description": "Criado" },
+          "400": { "description": "Dados obrigatórios ausentes", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErroPadrao" } } } }
+        }
+      }
+    },
+    "/api/alunos/{id}": {
+      "get": { 
+        "summary": "Busca aluno por ID", 
+        "tags": ["Alunos"], 
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }], 
+        "responses": { 
+          "200": { "description": "Sucesso" },
+          "404": { "description": "Aluno não encontrado", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ErroPadrao" } } } }
+        } 
+      },
+      "put": {
+        "summary": "Atualiza um aluno",
+        "tags": ["Alunos"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "type": "object", "properties": { "nome": { "type": "string" }, "email": { "type": "string" } } } } }
+        },
+        "responses": { 
+          "200": { "description": "Atualizado" },
+          "404": { "description": "Aluno inexistente para atualização" }
+        }
+      },
+      "delete": {
+        "summary": "Remove um aluno",
+        "tags": ["Alunos"],
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": { 
+          "204": { "description": "Removido" },
+          "404": { "description": "Aluno não encontrado" }
+        }
+      }
+    },
+    "/api/cursos": {
+      "get": { "summary": "Lista todos os cursos", "tags": ["Cursos"], "responses": { "200": { "description": "Sucesso" } } },
+      "post": {
+        "summary": "Cadastra um novo curso",
+        "tags": ["Cursos"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["nome", "cargaHoraria"],
+                "properties": {
+                  "nome": { "type": "string" },
+                  "cargaHoraria": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { 
+          "201": { "description": "Curso criado" },
+          "400": { "description": "Erro de validação nos campos" }
+        }
+      }
+    },
+    "/api/matriculas": {
+      "get": { "summary": "Lista todas as matrículas", "tags": ["Matrículas"], "responses": { "200": { "description": "Sucesso" } } },
+      "post": {
+        "summary": "Realiza matrícula",
+        "tags": ["Matrículas"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "alunoId": { "type": "integer" },
+                  "cursoId": { "type": "integer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": { 
+          "201": { "description": "Matrícula realizada" }, 
+          "404": { "description": "Aluno ou Curso inexistente" },
+          "409": { "description": "Aluno já matriculado neste curso" }
+        }
+      }
+    }
+  }
+}
